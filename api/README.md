@@ -6,4 +6,7 @@ npm install
 npm run dev
 ```
 
-Runs on http://localhost:3001 · WS `/ws/live`
+- Health: http://localhost:3001/api/health  
+- **Swagger UI:** http://localhost:3001/api/docs  
+- OpenAPI JSON: http://localhost:3001/api/docs.json  
+- Live WS: `ws://localhost:3001/ws/live`

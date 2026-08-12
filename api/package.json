@@ -1,0 +1,29 @@
+{
+  "name": "cos-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ./node_modules/tsx/dist/cli.mjs watch src/index.ts",
+    "build": "node ./node_modules/typescript/bin/tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "node ./node_modules/typescript/bin/tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@google/genai": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "gemini-chief-of-staff": "file:..",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.13.10",
+    "@types/ws": "^8.18.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

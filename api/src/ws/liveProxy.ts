@@ -26,8 +26,9 @@ export function attachLiveWebSocket(server: Server): WebSocketServer {
     void (async () => {
       try {
         if (
-          !process.env.GEMINI_API_KEY ||
-          process.env.GEMINI_API_KEY === 'your_gemini_api_key_here'
+          !env.geminiApiKey ||
+          env.geminiApiKey === 'your_gemini_api_key_here' ||
+          env.geminiApiKey === 'missing'
         ) {
           send(ws, {
             type: 'error',

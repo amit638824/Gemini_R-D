@@ -1,6 +1,6 @@
 import type { TaskItem } from '../shared/types.js';
 /**
- * Google Tasks + local fallback.
+ * Google Tasks + local fallback...
  */
 export declare class TasksService {
     isConfigured(): boolean;

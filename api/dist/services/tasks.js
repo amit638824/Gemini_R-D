@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { env } from '../config/env.js';
 import { stateStore } from '../state/store.js';
 /**
- * Google Tasks + local fallback.
+ * Google Tasks + local fallback...
  */
 export class TasksService {
     isConfigured() {

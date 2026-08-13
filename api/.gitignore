@@ -2,6 +2,11 @@ node_modules/
 data/
 .env
 .env.local
+# local env module (may contain secrets) — copy from env.example.ts
+src/config/env.ts
+dist/config/env.js
+dist/config/env.js.map
+dist/config/env.d.ts
 *.log
 *.tsbuildinfo
 # keep dist for deploy; uncomment next line if you prefer not committing JS build

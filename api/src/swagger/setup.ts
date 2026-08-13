@@ -1,7 +1,12 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import type { Express } from 'express';
 import { env } from '../config/env.js';
+
+const apiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const wsPublic = env.publicUrl.replace(/^http/, 'ws');
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -13,7 +18,7 @@ const options: swaggerJsdoc.Options = {
         'REST + Gemini Live WebSocket API for a hands-free personal AI Chief of Staff.',
         '',
         '## Live voice (WebSocket)',
-        'Connect to `ws://localhost:' + env.port + '/ws/live` (or via UI proxy).',
+        `Connect to \`${wsPublic}/ws/live\` (prod) or \`ws://localhost:${env.port}/ws/live\` (local).`,
         '',
         '### Client → Server',
         '- `{ "type": "audio", "data": "<base64 PCM 16kHz>" }`',
@@ -28,6 +33,10 @@ const options: swaggerJsdoc.Options = {
       ].join('\n'),
     },
     servers: [
+      {
+        url: env.publicUrl,
+        description: 'Production (apigemini.techwagger.com)',
+      },
       {
         url: `http://localhost:${env.port}`,
         description: 'Local API',
@@ -244,7 +253,11 @@ const options: swaggerJsdoc.Options = {
       },
     },
   },
-  apis: ['./src/routes/**/*.ts', './src/swagger/**/*.ts'],
+  apis: [
+    path.join(apiRoot, 'src/routes/**/*.ts'),
+    path.join(apiRoot, 'src/swagger/**/*.ts'),
+    path.join(apiRoot, 'dist/routes/**/*.js'),
+  ],
 };
 
 export const swaggerSpec = swaggerJsdoc(options);

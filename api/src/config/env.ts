@@ -2,42 +2,42 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
-dotenv.config({ path: path.resolve(__dirname, '../../.env.local'), override: true });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-function required(name: string, fallback?: string): string {
-  const value = process.env[name] ?? fallback;
-  if (!value) {
-    throw new Error(`Missing required env: ${name}`);
-  }
-  return value;
-}
+// Works from src/config (dev) and dist/config (prod)
+const apiRoot = path.resolve(__dirname, '../..');
+dotenv.config({ path: path.join(apiRoot, '.env') });
+dotenv.config({ path: path.join(apiRoot, '.env.local'), override: true });
 
 export const env = {
-  port: Number(process.env.PORT ?? 3001),
-  clientOrigin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173',
-  nodeEnv: process.env.NODE_ENV ?? 'development',
-  geminiApiKey: required('GEMINI_API_KEY', 'missing'),
+  port: Number(process.env.PORT || 3001),
+  host: process.env.HOST || '0.0.0.0',
+  nodeEnv: process.env.NODE_ENV || 'production',
+  publicUrl: process.env.PUBLIC_URL || 'https://apigemini.techwagger.com',
+  clientOrigin:
+    process.env.CLIENT_ORIGIN || 'https://apigemini.techwagger.com',
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
   geminiLiveModel:
-    process.env.GEMINI_LIVE_MODEL ?? 'gemini-3.1-flash-live-preview',
-  geminiApiVersion: process.env.GEMINI_API_VERSION ?? 'v1beta',
-  geminiVoice: process.env.GEMINI_VOICE ?? 'Aoede',
-  timerWarnBeforeSec: Number(process.env.TIMER_WARN_BEFORE_SEC ?? 300),
+    process.env.GEMINI_LIVE_MODEL || 'gemini-3.1-flash-live-preview',
+  geminiApiVersion: process.env.GEMINI_API_VERSION || 'v1beta',
+  geminiVoice: process.env.GEMINI_VOICE || 'Aoede',
+  timerWarnBeforeSec: Number(process.env.TIMER_WARN_BEFORE_SEC || 300),
   google: {
-    clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+    clientId: process.env.GOOGLE_CLIENT_ID || '',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     redirectUri:
-      process.env.GOOGLE_REDIRECT_URI ??
-      'http://localhost:3001/api/google/callback',
-    refreshToken: process.env.GOOGLE_REFRESH_TOKEN ?? '',
+      process.env.GOOGLE_REDIRECT_URI ||
+      'https://apigemini.techwagger.com/api/google/callback',
+    refreshToken: process.env.GOOGLE_REFRESH_TOKEN || '',
   },
 };
 
 export function assertGeminiKey(): void {
-  if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
+  const key = env.geminiApiKey || '';
+  if (!key || key === 'your_gemini_api_key_here' || key === 'missing') {
     console.warn(
-      '[env] GEMINI_API_KEY is not set. Copy .env.example → .env and add your key.',
+      '[env] GEMINI_API_KEY is not set. Add it in api/.env before starting Live sessions.',
     );
   }
 }

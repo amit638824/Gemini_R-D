@@ -1,12 +1,23 @@
 # API — Gemini Live Chief of Staff
 
+## Local
+
 ```bash
 copy .env.example .env   # set GEMINI_API_KEY
 npm install
 npm run dev
 ```
 
-- Health: http://localhost:3001/api/health  
-- **Swagger UI:** http://localhost:3001/api/docs  
-- OpenAPI JSON: http://localhost:3001/api/docs.json  
-- Live WS: `ws://localhost:3001/ws/live`
+## Build (JS → dist) + run prod
+
+```bash
+npm install
+npm run build
+npm start
+```
+
+Deploy target defaults: `https://apigemini.techwagger.com`
+
+- Health: `/api/health`  
+- Swagger: `/api/docs`  
+- Live WS: `wss://apigemini.techwagger.com/ws/live`

@@ -1,7 +1,8 @@
 node_modules/
-dist/
 data/
 .env
 .env.local
 *.log
 *.tsbuildinfo
+# keep dist for deploy; uncomment next line if you prefer not committing JS build
+# dist/

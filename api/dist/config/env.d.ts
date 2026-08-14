@@ -1,4 +1,5 @@
 export declare const env: {
+    rawPort: string;
     port: number;
     host: string;
     nodeEnv: string;

@@ -255,7 +255,15 @@ const options = {
         path.join(apiRoot, 'dist/routes/**/*.js'),
     ],
 };
-export const swaggerSpec = swaggerJsdoc(options);
+let generatedSpec;
+try {
+    generatedSpec = swaggerJsdoc(options);
+}
+catch (err) {
+    console.error('[swagger] Warning: swaggerJsdoc failed to parse routes, using default definition', err);
+    generatedSpec = options.definition;
+}
+export const swaggerSpec = generatedSpec;
 export function mountSwagger(app) {
     const swaggerHandler = swaggerUi.setup(swaggerSpec, {
         customSiteTitle: 'Chief of Staff API Docs',

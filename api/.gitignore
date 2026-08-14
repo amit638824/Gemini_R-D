@@ -1,8 +1,13 @@
 node_modules/
 data/
 .env
-.env.local
-# keep secrets out of git — copy env.example.ts → env.ts locally if you hardcode
-# (cPanel: prefer Environment Variables, not committing keys)
+.env.*
+!.env.example
+
+# Ignore config files containing secrets
+src/config/
+dist/config/
+
 *.log
 *.tsbuildinfo
+

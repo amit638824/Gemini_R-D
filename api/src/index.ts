@@ -9,6 +9,7 @@ import { mountSwagger } from './swagger/setup.js';
 assertGeminiKey();
 
 const app = express();
+
 app.use(
   cors({
     origin: '*',
@@ -19,14 +20,13 @@ app.use(
 );
 app.use(express.json({ limit: '2mb' }));
 
-// Direct health check endpoints to guarantee instant response on root or /api
+// Health check endpoints
 app.get(['/api/health', '/health'], (_req, res) => {
   res.status(200).json({
     ok: true,
     status: 'healthy',
     service: 'chief-of-staff-api',
     timestamp: new Date().toISOString(),
-    model: env.geminiLiveModel,
   });
 });
 
@@ -42,34 +42,17 @@ app.get('/', (_req, res) => {
 
 mountSwagger(app);
 
-// Support both /api/... and direct /... subpath setups on cPanel
 app.use('/api', apiRouter);
 app.use('/', apiRouter);
 
 const server = http.createServer(app);
 attachLiveWebSocket(server);
 
-const hasGlobalPassenger =
-  typeof (globalThis as { PhusionPassenger?: unknown }).PhusionPassenger !==
-  'undefined';
+const port = Number(process.env.PORT || 3000);
+const host = process.env.HOST || '0.0.0.0';
 
-const listenTarget = process.env.PORT || env.rawPort || env.port;
-
-function onListen(): void {
-  console.log(`[server] listening target=${String(listenTarget)} host=${env.host}`);
-  console.log(`[server] public ${env.publicUrl}`);
-  console.log(`[server] docs  ${env.publicUrl}/api/docs`);
-  console.log(`[server] model=${env.geminiLiveModel} api=${env.geminiApiVersion}`);
-}
-
-if (hasGlobalPassenger) {
-  // cPanel / Phusion Passenger internal global object
-  server.listen('passenger', onListen);
-} else if (typeof listenTarget === 'string' && isNaN(Number(listenTarget))) {
-  // Passenger socket path passed in process.env.PORT
-  server.listen(listenTarget, onListen);
-} else {
-  // Standard port number (numeric or string representation of a number)
-  const portNum = Number(listenTarget) || 3000;
-  server.listen(portNum, env.host, onListen);
-}
+server.listen(port, host, () => {
+  console.log(`Server running on ${host}:${port}`);
+  console.log(`Health: http://${host}:${port}/api/health`);
+  console.log(`Docs: http://${host}:${port}/api/docs`);
+});

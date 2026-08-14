@@ -1,7 +1,7 @@
 import http from 'node:http';
 import express from 'express';
 import cors from 'cors';
-import { assertGeminiKey, env } from './config/env.js';
+import { assertGeminiKey } from './config/env.js';
 import { apiRouter } from './routes/api.js';
 import { attachLiveWebSocket } from './ws/liveProxy.js';
 import { mountSwagger } from './swagger/setup.js';
@@ -14,14 +14,13 @@ app.use(cors({
     credentials: false,
 }));
 app.use(express.json({ limit: '2mb' }));
-// Direct health check endpoints to guarantee instant response on root or /api
+// Health check endpoints
 app.get(['/api/health', '/health'], (_req, res) => {
     res.status(200).json({
         ok: true,
         status: 'healthy',
         service: 'chief-of-staff-api',
         timestamp: new Date().toISOString(),
-        model: env.geminiLiveModel,
     });
 });
 app.get('/', (_req, res) => {
@@ -34,30 +33,15 @@ app.get('/', (_req, res) => {
     });
 });
 mountSwagger(app);
-// Support both /api/... and direct /... subpath setups on cPanel
 app.use('/api', apiRouter);
 app.use('/', apiRouter);
 const server = http.createServer(app);
 attachLiveWebSocket(server);
-const hasGlobalPassenger = typeof globalThis.PhusionPassenger !== 'undefined';
-const listenTarget = process.env.PORT || env.rawPort || env.port;
-function onListen() {
-    console.log(`[server] listening target=${String(listenTarget)} host=${env.host}`);
-    console.log(`[server] public ${env.publicUrl}`);
-    console.log(`[server] docs  ${env.publicUrl}/api/docs`);
-    console.log(`[server] model=${env.geminiLiveModel} api=${env.geminiApiVersion}`);
-}
-if (hasGlobalPassenger) {
-    // cPanel / Phusion Passenger internal global object
-    server.listen('passenger', onListen);
-}
-else if (typeof listenTarget === 'string' && isNaN(Number(listenTarget))) {
-    // Passenger socket path passed in process.env.PORT
-    server.listen(listenTarget, onListen);
-}
-else {
-    // Standard port number (numeric or string representation of a number)
-    const portNum = Number(listenTarget) || 3000;
-    server.listen(portNum, env.host, onListen);
-}
+const port = Number(process.env.PORT || 3000);
+const host = process.env.HOST || '0.0.0.0';
+server.listen(port, host, () => {
+    console.log(`Server running on ${host}:${port}`);
+    console.log(`Health: http://${host}:${port}/api/health`);
+    console.log(`Docs: http://${host}:${port}/api/docs`);
+});
 //# sourceMappingURL=index.js.map

@@ -260,7 +260,14 @@ const options: swaggerJsdoc.Options = {
   ],
 };
 
-export const swaggerSpec = swaggerJsdoc(options);
+let generatedSpec: unknown;
+try {
+  generatedSpec = swaggerJsdoc(options);
+} catch (err) {
+  console.error('[swagger] Warning: swaggerJsdoc failed to parse routes, using default definition', err);
+  generatedSpec = options.definition;
+}
+export const swaggerSpec = generatedSpec as object;
 
 export function mountSwagger(app: Express): void {
   const swaggerHandler = swaggerUi.setup(swaggerSpec, {

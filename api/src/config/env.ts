@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// cPanel / local: try several .env locations
 const candidates = [
   path.join(process.cwd(), '.env'),
   path.resolve(__dirname, '../../.env'),

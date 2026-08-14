@@ -18,16 +18,39 @@ app.use(
   }),
 );
 app.use(express.json({ limit: '2mb' }));
+
+app.get('/', (_req, res) => {
+  res.json({
+    ok: true,
+    service: 'chief-of-staff-api',
+    health: '/api/health',
+    docs: '/api/docs',
+    live: '/ws/live',
+  });
+});
+
 mountSwagger(app);
 app.use('/api', apiRouter);
 
 const server = http.createServer(app);
 attachLiveWebSocket(server);
 
-server.listen(env.port, env.host, () => {
-  console.log(`[server] listening ${env.host}:${env.port}`);
+const isPassenger =
+  typeof (globalThis as { PhusionPassenger?: unknown }).PhusionPassenger !==
+    'undefined' ||
+  process.env.PASSENGER_APP_ENV !== undefined ||
+  process.env.PASSENGER_BASE_URI !== undefined;
+
+function onListen(): void {
+  console.log(`[server] listening ${isPassenger ? 'passenger' : `${env.host}:${env.port}`}`);
   console.log(`[server] public ${env.publicUrl}`);
   console.log(`[server] docs  ${env.publicUrl}/api/docs`);
   console.log(`[server] model=${env.geminiLiveModel} api=${env.geminiApiVersion}`);
-  console.log(`[server] client origin ${env.clientOrigin}`);
-});
+}
+
+if (isPassenger) {
+  // cPanel / Phusion Passenger
+  server.listen('passenger', onListen);
+} else {
+  server.listen(env.port, env.host, onListen);
+}

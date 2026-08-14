@@ -28,8 +28,8 @@ export const env = {
   clientOrigin: process.env.CLIENT_ORIGIN || 'https://apigemini.techwagger.com',
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   geminiLiveModel:
-    process.env.GEMINI_LIVE_MODEL || 'gemini-3.1-flash-live-preview',
-  geminiApiVersion: process.env.GEMINI_API_VERSION || 'v1beta',
+    process.env.GEMINI_LIVE_MODEL || 'gemini-2.5-flash-native-audio-latest',
+  geminiApiVersion: process.env.GEMINI_API_VERSION || 'v1alpha',
   geminiVoice: process.env.GEMINI_VOICE || 'Aoede',
   timerWarnBeforeSec: Number(process.env.TIMER_WARN_BEFORE_SEC || 300),
   google: {

@@ -19,6 +19,17 @@ app.use(
 );
 app.use(express.json({ limit: '2mb' }));
 
+// Direct health check endpoints to guarantee instant response on root or /api
+app.get(['/api/health', '/health'], (_req, res) => {
+  res.status(200).json({
+    ok: true,
+    status: 'healthy',
+    service: 'chief-of-staff-api',
+    timestamp: new Date().toISOString(),
+    model: env.geminiLiveModel,
+  });
+});
+
 app.get('/', (_req, res) => {
   res.json({
     ok: true,
@@ -30,27 +41,35 @@ app.get('/', (_req, res) => {
 });
 
 mountSwagger(app);
+
+// Support both /api/... and direct /... subpath setups on cPanel
 app.use('/api', apiRouter);
+app.use('/', apiRouter);
 
 const server = http.createServer(app);
 attachLiveWebSocket(server);
 
-const isPassenger =
+const hasGlobalPassenger =
   typeof (globalThis as { PhusionPassenger?: unknown }).PhusionPassenger !==
-    'undefined' ||
-  process.env.PASSENGER_APP_ENV !== undefined ||
-  process.env.PASSENGER_BASE_URI !== undefined;
+  'undefined';
+
+const listenTarget = process.env.PORT || env.rawPort || env.port;
 
 function onListen(): void {
-  console.log(`[server] listening ${isPassenger ? 'passenger' : `${env.host}:${env.port}`}`);
+  console.log(`[server] listening target=${String(listenTarget)} host=${env.host}`);
   console.log(`[server] public ${env.publicUrl}`);
   console.log(`[server] docs  ${env.publicUrl}/api/docs`);
   console.log(`[server] model=${env.geminiLiveModel} api=${env.geminiApiVersion}`);
 }
 
-if (isPassenger) {
-  // cPanel / Phusion Passenger
+if (hasGlobalPassenger) {
+  // cPanel / Phusion Passenger internal global object
   server.listen('passenger', onListen);
+} else if (typeof listenTarget === 'string' && isNaN(Number(listenTarget))) {
+  // Passenger socket path passed in process.env.PORT
+  server.listen(listenTarget, onListen);
 } else {
-  server.listen(env.port, env.host, onListen);
+  // Standard port number (numeric or string representation of a number)
+  const portNum = Number(listenTarget) || 3000;
+  server.listen(portNum, env.host, onListen);
 }

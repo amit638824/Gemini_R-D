@@ -13,8 +13,11 @@ for (const p of candidates) {
     dotenv.config({ path: p });
 }
 dotenv.config({ path: path.join(process.cwd(), '.env.local'), override: true });
+const rawPort = process.env.PORT;
+const parsedPort = rawPort && !isNaN(Number(rawPort)) ? Number(rawPort) : 3001;
 export const env = {
-    port: Number(process.env.PORT || 3001),
+    rawPort: rawPort || '',
+    port: parsedPort,
     host: process.env.HOST || '0.0.0.0',
     nodeEnv: process.env.NODE_ENV || 'production',
     publicUrl: process.env.PUBLIC_URL || 'https://apigemini.techwagger.com',

@@ -257,11 +257,12 @@ const options = {
 };
 export const swaggerSpec = swaggerJsdoc(options);
 export function mountSwagger(app) {
-    app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    const swaggerHandler = swaggerUi.setup(swaggerSpec, {
         customSiteTitle: 'Chief of Staff API Docs',
         explorer: true,
-    }));
-    app.get('/api/docs.json', (_req, res) => {
+    });
+    app.use(['/api/docs', '/docs'], swaggerUi.serve, swaggerHandler);
+    app.get(['/api/docs.json', '/docs.json'], (_req, res) => {
         res.json(swaggerSpec);
     });
 }
